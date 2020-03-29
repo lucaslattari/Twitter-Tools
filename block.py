@@ -1,24 +1,9 @@
 from argparse import ArgumentParser
 import sys
-import tweepy
-import botometer
-from tqdm import tqdm
 import json
+from authentication import *
 
-def oauth_login(consumer_key, consumer_secret, token_key, token_secret):
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(token_key, token_secret)
-
-    api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True, compression=True)
-    try:
-        api.verify_credentials()
-        print("Authentication ok!")
-    except:
-        print("Error during authentication")
-        exit()
-
-    return api
-
+'''
 def replyProbBotOfMentions(api, rapidapi_key, twitter_app_auth):
     bom = botometer.Botometer(wait_on_ratelimit=True, rapidapi_key=rapidapi_key, **twitter_app_auth)
 
@@ -38,60 +23,65 @@ def replyProbBotOfMentions(api, rapidapi_key, twitter_app_auth):
                         auto_populate_reply_metadata=True
                     )
         print(msg, tweet.user.screen_name)
+'''
 
-def searchForBots(api, userSearched, rapidapi_key, twitter_app_auth):
-    fName = "tweetsJson.txt"
+def searchAndBlock(twitterApi, botometerObject, userSearched, filename, bot_threshold):
     tweetCount = 0
     maxTweets = 10000000
     max_id = -1
     sinceId = None
     searchQuery = userSearched
     tweetsPerQry = 100
-    print("Downloading max {0} tweets".format(maxTweets))
-
-    bom = botometer.Botometer(wait_on_ratelimit=True, rapidapi_key=rapidapi_key, **twitter_app_auth)
+    print("Searching max {0} tweets".format(maxTweets))
 
     while tweetCount < maxTweets:
         if (max_id <= 0):
             if (not sinceId):
-                new_tweets = api.search(q=searchQuery, count=tweetsPerQry)
+                new_tweets = twitterApi.search(q=searchQuery, count=tweetsPerQry)
             else:
-                new_tweets = api.search(q=searchQuery, count=tweetsPerQry,
+                new_tweets = twitterApi.search(q=searchQuery, count=tweetsPerQry,
                                         since_id=sinceId)
         else:
             if (not sinceId):
-                new_tweets = api.search(q=searchQuery, count=tweetsPerQry,
+                new_tweets = twitterApi.search(q=searchQuery, count=tweetsPerQry,
                                         max_id=str(max_id - 1))
             else:
-                new_tweets = api.search(q=searchQuery, count=tweetsPerQry,
+                new_tweets = twitterApi.search(q=searchQuery, count=tweetsPerQry,
                                         max_id=str(max_id - 1),
                                         since_id=sinceId)
         if not new_tweets:
             print("No more tweets found")
             break
         for tweet in new_tweets:
-            response = bom.check_account('@' + tweet.user.screen_name)
+            response = botometerObject.check_account('@' + tweet.user.screen_name)
             #nota de 0 a 5 (5 é bot, 0 é humano)
             probOfBeingBot = response["display_scores"]["universal"]
 
             print(tweet.user.screen_name, probOfBeingBot, tweet.text)
-            if probOfBeingBot > 2.5:
-                print("BLOCK!")
-                api.create_block(tweet.user.screen_name)
-            f = open(fName, 'a+')
-            f.write(json.dumps(tweet._json))
+            wasBlocked = False
+            if probOfBeingBot > bot_threshold:
+                wasBlocked = True
+                twitterApi.create_block(tweet.user.screen_name)
+
+            d = {}
+            d["username"] = tweet.user.screen_name
+            d["score"] = probOfBeingBot
+            d["tweet"] = tweet._json
+            d["wasBlocked"] = wasBlocked
+
+            f = open(filename, 'a+')
+            f.write(json.dumps(d))
             f.write("\n\n")
             f.close()
 
         tweetCount += len(new_tweets)
-        print("Downloaded {0} tweets".format(tweetCount))
+        print("Searched {0} tweets".format(tweetCount))
         max_id = new_tweets[-1].id
 
-    print ("Downloaded {0} tweets, Saved to {1}".format(tweetCount, fName))
+    print ("Searched {0} tweets, Saved to {1}".format(tweetCount, filename))
 
 def init(args):
-    api = oauth_login(args.consumer_key, args.secret_key, args.token_key, args.token_secret)
-    #api.update_status("Esse tweet foi feito por um bot. Respondam aqui pra eu testar! #OBrasilTemQuePararBolsonaro")
+    twitterApi = authenticateOnTwitter(args.consumer_key, args.secret_key, args.token_key, args.token_secret)
 
     rapidapi_key = args.rapid_key
     twitter_app_auth = {
@@ -100,18 +90,22 @@ def init(args):
         'access_token': args.token_key,
         'access_token_secret': args.token_secret,
     }
+    botometerObj = authenticateOnBotometer(rapidapi_key, twitter_app_auth)
 
-    #replyProbBotOfMentions(api, rapidapi_key, twitter_app_auth)
-    searchForBots(api, '@oatila', rapidapi_key, twitter_app_auth)
+    searchAndBlock(twitterApi, botometerObj, args.username, args.block_file, args.bot_threshold)
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description = 'Silencia ou bloqueia contas automaticamente / Automatically blocks or mutes accounts')
+    parser = ArgumentParser(description = 'Gera um relatório a partir de algum termo buscado no Twitter / Generates a report from terms searched on Twitter')
     parser.add_argument('consumer_key', help = 'Chave consumidora / Consumer key')
     parser.add_argument('secret_key', help = 'Chave secreta / Secret key')
     parser.add_argument('token_key', help = 'Chave de token / Token key')
     parser.add_argument('token_secret', help = 'Token secreto / Token secret')
     parser.add_argument('rapid_key', help = 'Chave Rapid API / Key rapid API')
+    parser.add_argument('username', help = 'Usuário buscado / Searched usename')
+    parser.add_argument('-f', dest='block_file', default = 'block.json', help="Nome do arquivo de saída contendo o relatório em formato json / Name of the output file containing the report in json format")
+    parser.add_argument('-b', action = 'store', dest = 'bot_threshold', type = float, default = 2.5, required = False,
+                        help = 'Limiar que define quando um usuário será bloqueado / Threshold that defines when a user will be blocked')
 
     if len(sys.argv) < 6:
         parser.print_help(sys.stderr)
