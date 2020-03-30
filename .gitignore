@@ -1,4 +1,4 @@
-*.txt
+auth.txt
 *.json
 __pycache__
 env
