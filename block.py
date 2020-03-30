@@ -81,33 +81,37 @@ def searchAndBlock(twitterApi, botometerObject, userSearched, filename, bot_thre
     print ("Searched {0} tweets, Saved to {1}".format(tweetCount, filename))
 
 def init(args):
-    twitterApi = authenticateOnTwitter(args.consumer_key, args.secret_key, args.token_key, args.token_secret)
+    if(args.token_secret is None and args.token_key is None):
+        api, token_key, token_secret = authenticateOnTwitterWithoutToken(args.consumer_key, args.secret_key)
+    else:
+        api = authenticateOnTwitterWithToken(args.consumer_key, args.secret_key, args.token_key, args.token_secret)
+        token_key = args.token_key
+        token_secret = args.token_secret
 
     rapidapi_key = args.rapid_key
     twitter_app_auth = {
         'consumer_key': args.consumer_key,
         'consumer_secret': args.secret_key,
-        'access_token': args.token_key,
-        'access_token_secret': args.token_secret,
+        'access_token': token_key,
+        'access_token_secret': token_secret,
     }
     botometerObj = authenticateOnBotometer(rapidapi_key, twitter_app_auth)
 
     searchAndBlock(twitterApi, botometerObj, args.username, args.block_file, args.bot_threshold)
 
-
 if __name__ == "__main__":
     parser = ArgumentParser(description = 'Gera um relatório a partir de algum termo buscado no Twitter / Generates a report from terms searched on Twitter')
     parser.add_argument('consumer_key', help = 'Chave consumidora / Consumer key')
     parser.add_argument('secret_key', help = 'Chave secreta / Secret key')
-    parser.add_argument('token_key', help = 'Chave de token / Token key')
-    parser.add_argument('token_secret', help = 'Token secreto / Token secret')
     parser.add_argument('rapid_key', help = 'Chave Rapid API / Key rapid API')
     parser.add_argument('username', help = 'Usuário buscado / Searched usename')
+    parser.add_argument('-tk', dest='token_key', default = None, help = 'Chave de token / Token key')
+    parser.add_argument('-ts', dest='token_secret', default = None, help = 'Token secreto / Token secret')
     parser.add_argument('-f', dest='block_file', default = 'block.json', help="Nome do arquivo de saída contendo o relatório em formato json / Name of the output file containing the report in json format")
     parser.add_argument('-b', action = 'store', dest = 'bot_threshold', type = float, default = 2.5, required = False,
                         help = 'Limiar que define quando um usuário será bloqueado / Threshold that defines when a user will be blocked')
 
-    if len(sys.argv) < 6:
+    if len(sys.argv) < 4:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
