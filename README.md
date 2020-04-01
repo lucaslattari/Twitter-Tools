@@ -67,56 +67,103 @@ Finalmente, agora você pode usar qualquer um dos utilitários desse repositóri
 
 ## Utilitários disponíveis
 
-Explain how to run the automated tests for this system
+### block.py
 
-### Break down into end to end tests
+Esse script eu fiz baseado numa sugestão que o Atila Iamarino postou no Twitter. Ele perguntou se existia alguma ferramenta que varria as respostas de um tweet e bloqueava contas com perfil de bot. Basicamente esse script analisa as mentions de um usuário e sempre que uma conta bot fez esse reply (segundo os critérios do botometer), ela é sumariamente bloqueada. Seus parâmetros estão descritos no print abaixo.
 
-Explain what these tests test and why
+![Parâmetros de block.py.](https://universodiscreto.com/images/block.png)
 
-```
-Give an example
-```
+Para usar esse programa, no mínimo, devem ser informadas as chaves da API do Twitter (consumer key e consumer secret) além da [chave do Botometer da RAPID API](https://rapidapi.com/OSoMe/api/botometer). Quem verifica se as contas são bots ou não é o pacote [botometer](https://botometer.iuni.iu.edu/), e no site da Rapid API você obtém a chave deles. Outro parâmetro obrigatório é o username da conta de Twitter que se recuperarão as mentions.
 
-### And coding style tests
-
-Explain what these tests test and why
+Vamos supor que eu queira bloquear contas bots que mencionaram @oatila.
 
 ```
-Give an example
+python block.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] [CHAVE_RAPID_API] oatila 
 ```
 
-## Deployment
+Lembrando que você também pode informar os tokens, caso não queira se logar manualmente pelo site do Twitter.
 
-Add additional notes about how to deploy this on a live system
+```
+python block.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] [CHAVE_RAPID_API] oatila -tk [CHAVE_TOKEN] -ts [CHAVE_SECRETA_TOKEN]
+```
 
-## Built With
+Outros parâmetros importantes são: o arquivo de log contendo um relatório dos bloqueios realizados (-f) e o limiar de bot (-b). 
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+O arquivo de log é salvo em formato JSON.
 
-## Contributing
+O limiar de bot define qual o nível de tolerância que você terá ao fazer os bloqueios baseado no botometer. O botometer dá notas de 0 a 5 para os perfis, de forma que o mais próximo de 0 é um perfil controlado por humano e 5 é administrado por um algoritmo. Você pode definir sua nota. No exemplo abaixo define-se que uma pontuação acima de 2,5 já é suficiente pra bloquear uma conta.
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+```
+python block.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] [CHAVE_RAPID_API] oatila -tk [CHAVE_TOKEN] -ts [CHAVE_SECRETA_TOKEN] -f block.json -b 2.5
+```
 
-## Versioning
+### delete.py
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+Esse script é uma modificação em cima de outro criado em repositório antigo meu, cujo objetivo é deletar tweets antigos com maior facilidade. Seus parâmetros estão descritos no print abaixo:
 
-## Authors
+![Parâmetros de delete.py.](https://universodiscreto.com/images/delete.png)
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+Para usar esse programa, no mínimo, devem ser informadas as chaves da API do Twitter (consumer key e consumer secret) e se você deseja remover apenas tweets (--TWEETS), curtidas (--LIKES) ou ambos (--TWEETS_AND_LIKES).
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+Outro parâmetro opcional importante é: até quantos dias você deseja manter os tweets ou likes (-d). Se você, por exemplo, informar '-d 7', isso faz que os tweets (e/ou likes) mais antigos do que uma semana sejam excluídos da plataforma.
 
-## License
+Por fim, além dos tokens já explicados acima, você também pode gravar um relatório em formato JSON com os tweets deletados por meio do parâmetro -f.
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+Veja o exemplo abaixo, em que tweets e curtidas de um ano atrás são removidos.
+
+```
+python delete.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] --TWEETS_AND_LIKES -tk [CHAVE_TOKEN] -ts [CHAVE_SECRETA_TOKEN] -f delete.json -d 365
+```
+
+### download.py
+
+Esse script tem como objetivo fazer downloads de seus tweets. Seus parâmetros estão descritos no print abaixo:
+
+![Parâmetros de download.py.](https://universodiscreto.com/images/download.png)
+
+Para usar esse programa, no mínimo, devem ser informadas as chaves da API do Twitter (consumer key e consumer secret).
+
+Outro parâmetro opcional importante é: qual o nome do arquivo de relatório em formato JSON com os tweets da sua timeline, por meio do parâmetro -f.
+
+Veja o exemplo abaixo.
+
+```
+python download.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] -tk [CHAVE_TOKEN] -ts [CHAVE_SECRETA_TOKEN] -f tweets.json
+```
+
+### search_log.py
+
+Esse script tem como objetivo buscar os tweets de acordo com um determinado critério de busca e salvá-los em disco. Seus parâmetros estão descritos no print abaixo:
+
+![Parâmetros de search_log.py.](https://universodiscreto.com/images/search_log.png)
+
+Para usar esse programa, no mínimo, devem ser informadas as chaves da API do Twitter (consumer key e consumer secret) e o termo a ser buscado.
+
+Outro parâmetro opcional importante é: qual o nome do arquivo de relatório em formato JSON com os tweets retornados a partir da busca, por meio do parâmetro -f.
+
+Veja o exemplo abaixo.
+
+```
+python search_log.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] termo_buscado -tk [CHAVE_TOKEN] -ts [CHAVE_SECRETA_TOKEN] -f log.json
+```
+
+## Desenvolvido com
+
+* [Tweepy](https://www.tweepy.org/) - Interface amigável pra usar a API do Twitter
+* [Botometer](https://botometer.iuni.iu.edu/#!/) - Biblioteca útil para identificar bots do Twitter
+
+## Contribuindo
+
+Sinta-se a vontade para forkar, propor correções ou fazer modificações de código a fim de estender as funcionalidades desse repositório.
+
+## Autor
+
+* **Lucas Lattari** - [lucaslattari](https://github.com/lucaslattari)
 
 ## Agradecimentos
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* Minha esposa [biaportes](https://github.com/biaportes) pela paciência de me ver programando por tanto tempo e não me trucidar.
 
-##Referências [Python Real - Bot de Twitter](https://realpython.com/twitter-bot-python-tweepy/)
+## Referências 
+
+* [Python Real - Bot de Twitter](https://realpython.com/twitter-bot-python-tweepy/)
