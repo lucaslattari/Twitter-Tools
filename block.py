@@ -100,7 +100,7 @@ def init(args):
     searchAndBlock(twitterApi, botometerObj, args.username, args.block_file, args.bot_threshold)
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description = 'Gera um relatório a partir de algum termo buscado no Twitter / Generates a report from terms searched on Twitter')
+    parser = ArgumentParser(description = 'Realiza uma busca pelas menções recebidas de um nome de um usuário e realiza bloqueios automáticos quando acha uma conta bot / Performs a search for mentions received by a twitter account and performs automatic blocks when finding a bot account')
     parser.add_argument('consumer_key', help = 'Chave consumidora / Consumer key')
     parser.add_argument('secret_key', help = 'Chave secreta / Secret key')
     parser.add_argument('rapid_key', help = 'Chave Rapid API / Key rapid API')

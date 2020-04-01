@@ -78,7 +78,7 @@ def init(args):
         deleteLikes(twitterApi, args.log_file, int(args.days_to_keep))
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description = 'Gera um relatório a partir de algum termo buscado no Twitter / Generates a report from terms searched on Twitter')
+    parser = ArgumentParser(description = 'Realiza a exclusão automática de tweets e curtidas antigas / Automatically delete old tweets and likes')
     parser.add_argument('consumer_key', help = 'Chave consumidora / Consumer key')
     parser.add_argument('secret_key', help = 'Chave secreta / Secret key')
     parser.add_argument('-tk', dest='token_key', default = None, help = 'Chave de token / Token key')

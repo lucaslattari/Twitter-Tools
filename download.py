@@ -51,7 +51,7 @@ def init(args):
     downloadTweets(twitterApi, args.log_file)
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description = 'Gera um relatório a partir de algum termo buscado no Twitter / Generates a report from terms searched on Twitter')
+    parser = ArgumentParser(description = 'Realiza o download de seus tweets / Download your tweets')
     parser.add_argument('consumer_key', help = 'Chave consumidora / Consumer key')
     parser.add_argument('secret_key', help = 'Chave secreta / Secret key')
     parser.add_argument('-tk', dest='token_key', default = None, help = 'Chave de token / Token key')
