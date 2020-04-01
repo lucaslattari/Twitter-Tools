@@ -6,9 +6,9 @@ O propósito desse repositório é disponibilizar uma série de scripts que auto
 * Fazem o download dos tuítes de um usuário (download.py)
 * Buscam os tuítes segundo algum critério de busca (search_log.py)
 
-## Getting Started
+## Primeiros Passos
 
-### Prerequisites
+### Pré-requisitos
 
 Para usar o referido código, se faz necessário ter as chaves de desenvolvimento para a API do Twitter. Para isso, você precisa de:
 1. Ter uma conta no Twitter ¯\\_(ツ)_/¯
@@ -25,29 +25,47 @@ Para usar o referido código, se faz necessário ter as chaves de desenvolviment
 5. Ao selecionar 'Keys and tokens', você pode gerar as quatro chaves (API key, API secret, Access Token e Access Token Secret) que serão necessárias para o bom funcionamento dos scripts desse repositório.
 ![Tela contendo as chaves necessárias para o uso de aplicações que envolvem a API do Twitter](https://files.realpython.com/media/dev_account_07.f37afa5ab26a.efd2422a33c8.png)
 
-```
-Supondo que você deseja utilizar a aplicação que remove os tweets antigos (delete.py), ao abrir o terminal de comandos e acessar a pasta em que os códigos se encontram, você
-```
+6. Supondo que você deseja utilizar a aplicação que remove os tweets antigos (delete.py), ao abrir o terminal de comandos e acessar a pasta em que os códigos se encontram, você deve informar as chaves de desenvolvimento, enquanto os tokens são opcionais. Veja os exemplos abaixo:
 
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+Possibilidade 1: Informar tanto as chaves de desenvolvimento quanto os tokens.
 
 ```
-Give the example
+python delete.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] -tk [CHAVE_TOKEN] -ts [CHAVE_SECRETA_TOKEN] --TWEETS
 ```
 
-And repeat
+OBS: Obviamente você deve trocar os parâmetros pelas chaves geradas no passo 5 =)
+
+![Tela mostrando um exemplo da execução do Twitter Tools (delete.py)](https://universodiscreto.com/images/exemplo1_twitter_tools.png)
+
+Possibilidade 2: Informar apenas as chaves de desenvolvimento.
 
 ```
-until finished
+python delete.py [CHAVE_CONSUMIDORA] [CHAVE_SECRETA] --TWEETS
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Nesse caso, abre-se uma janela do navegador autorizando o uso da aplicação pela plataforma do Twitter.
 
-## Running the tests
+![Tela do prompt com a operação realizada](https://universodiscreto.com/images/exemplo2_twitter_tools.png)
+
+![Tela do navegador solicitando a autorização do usuário.](https://universodiscreto.com/images/exemplo3_twitter_tools.png)
+
+Após autorizar, você deve anotar o código e informar na aplicação em execução.
+
+![Tela com o código a ser anotado.](https://universodiscreto.com/images/exemplo4_twitter_tools.png)
+
+![Após a inserção do código.](https://universodiscreto.com/images/exemplo5_twitter_tools.png)
+
+Finalmente, agora você pode usar qualquer um dos utilitários desse repositório!
+
+### Instalação
+
+1. No terminal, acesse alguma pasta e digite o comando 'git clone https://github.com/lucaslattari/Twitter-Tools.git'
+
+2. Na pasta do projeto, insira o comando 'pip install -r requirements.txt'
+
+3. Faça bom uso =)
+
+## Utilitários disponíveis
 
 Explain how to run the automated tests for this system
 
