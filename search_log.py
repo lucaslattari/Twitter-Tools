@@ -8,7 +8,7 @@ def generateLog(api, query, filename, twitter_app_auth):
     maxTweets = 10000000
     max_id = -1
     sinceId = None
-    searchQuery = userSearched
+    searchQuery = query
     tweetsPerQry = 100
     print("Downloading max {0} tweets".format(maxTweets))
 
